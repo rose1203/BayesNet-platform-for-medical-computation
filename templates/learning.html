@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <script src="/static/assets/js/echart.min.js"></script>
+  <script src="static/assets/js/modal.js"></script> 
+  <title>Home</title>
+  <meta content="" name="descriptison">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,600,600i,700,700i,900" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="static/assets/vendor/icofont/icofont.min.css" rel="stylesheet">
+  <link href="static/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="static/assets/vendor/animate.css/animate.min.css" rel="stylesheet">
+  <link href="static/assets/vendor/venobox/venobox.css" rel="stylesheet">
+  <link href="static/assets/vendor/aos/aos.css" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="static/assets/css/style.css" rel="stylesheet">
+
+</head>
+<body>
+
+  
+
+  <!-- ======= Header ======= -->
+  <header id="header">
+    <div class="container">
+
+      <div class="logo float-left">
+        <h1 class="text-light"><a href="index.html"><span>BayesNet for Disease Prediction</span></a></h1>
+        <!-- Uncomment below if you prefer to use an image logo -->
+        <!-- <a href="index.html"><img src="static/assets/img/logo.png" alt="" class="img-fluid"></a>-->
+      </div>      
+    </div>
+  </header><!-- End Header -->  
+
+  <main id="main"> 
+
+    <!-- ======= Services Section ======= -->
+    <section id="services" class="services">
+      <div class="container" style="width:100%;height:850px;">
+      
+        <div class="section-title">
+          <h2>Services--Learning</h2>
+        </div>
+      
+
+        <div style="position: absolute;width:500px;height:900px;margin-left:50px">
+        <h4 class="title" style="text-align:center"><span> Parameters Settings </span> </h4>
+        <form action="{{ url_for('learning')}}"  method="post" enctype="multipart/form-data">
+            <label><b>data</b></label><br>
+        		<label for="csv_file">Select a CSV file: </label>
+        		<input type="file" id="csv_file" name="csv_file">        		
+            <button type="submit" name="submit" value="UploadData">Submit</button>
+        	</form>
+         <label><b>Choose Blacklist</b></label><br>
+        <form action="{{ url_for('learning')}}" class="form-horizontal" method="post">
+          
+            {% for column in columns %}
+              <label>
+                
+                 <input type="checkbox" name="columns" value="{{ column['name'] }}" {% if column['checked'] %} checked {% endif %}>
+                  {{ column['name'] }}<br>
+              </label>
+            {% endfor %} 
+          {% if file_path %}  
+              <input type="hidden" name="filename" value="{{ file_path }}">                
+          {% endif %}
+          <label><b>Structure Learning Algorithm</b></label>
+          <select name="structure_methodtype" >
+            <option value="hc" selected>Hillclimbsearch</option>
+            <option value="ex" >Exhaustivesearch</option>
+            <option value="cl" >Chow-liu</option>
+            <option value="tan" >Tree-augmented Naive Bayes (TAN)</option>
+            <option value="naivebayes" >NaiveBayes</option>
+            <option value="cs" >Constraint-based</option>
+          </select>
+          <!-- 
+          <label>structure_scoretype</label>
+          <select name="structure_scoretype" >
+            <option value="bic" selected>bic</option>
+            <option value="k2" >k2</option>
+            <option value="bdeu" >Chow-bdeu</option>
+          </select>-->
+        <br>
+          <label><b>Parameter Learning Algorithm</b></label>
+          <select name="para_methodtype" >
+            <option value="bayes" >Bayesian Estimation</option>
+            <option value="maximumlikelihood" selected>maximumlikelihood</option>            
+          </select>
+        <br>
+        <div>
+        
+        <!--<input  type="submit" style="text-align:center" name="LearnNet" id = "LearnNet" value="Learn the Net for Stroke"/>  -->   
+        <div>
+              <button type="submit" name="submit" value="LearnNet">Learn the Net for Stroke</button>
+        </div>
+        </form>
+        </div>
+        </div>        
+        <div class="container" style="position: absolute;left:650px;margin-left:10px;width:800px;height:900px">
+        <form action="{{ url_for('learning')}}" class="form-horizontal" method="post">
+          <div id="result_plot" >
+          <h4 class="title" style="text-align:center"> Model 
+          </h4>
+            <img  src="static/assets/img/bnlearn_DAG.png" style="width:80%;height:80%"/>
+          </div>
+          <div class="container table-responsive">
+          <h4 class="title" style="text-align:center"> Scores
+          </h4>
+           <table class="table text-nowrap" cellspacing="5" >
+               <tr class="text-center">
+                   <td><b>Score type</b></td>
+                   <td><b>Score</b></td>                   
+               </tr>
+                <tr class="text-center">
+                   <td>K2</td>
+                   <td>{{score_value[0]}}</td>                   
+               </tr>
+                <tr class="text-center">
+                   <td>Bds</td>
+                   <td>{{score_value[1]}}</td>                   
+               </tr>
+                <tr class="text-center">
+                   <td>Bic</td>
+                   <td>{{score_value[2]}}</td>                   
+               </tr>
+               <tr class="text-center">
+                   <td>Bdeu</td>
+                   <td>{{score_value[3]}}</td>                   
+               </tr>
+           </table>
+           
+          <!--  <input  type="submit" style="text-align:center" name="SaveNet" id = "SaveNet" value="Save this Net for Stroke"/>--> 
+          <div>
+              <label>Please enter the network name for saving (Without / and .)</label><br>
+              <input type="savename" name="savename">
+              <button type="submit" name="submit" value="SaveNet">Save this Net for Stroke </button>
+          </div>
+        </form>
+           </div>        
+        
+        </div> 
+    </div>
+      </div>
+    </section><!-- End Services Section -->
+
+    
+
+  </main><!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer">
+  
+    <div class="container">
+      <div class="copyright">Copyright &copy; 2023</div>
+      <div class="credits"></div>
+    </div>
+  </footer><!-- End Footer -->
+
+  <a href="#" class="back-to-top"><i class="icofont-simple-up"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="static/assets/vendor/jquery/jquery.min.js"></script>
+  <script src="static/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="static/assets/vendor/jquery.easing/jquery.easing.min.js"></script>
+  
+  <script src="static/assets/vendor/jquery-sticky/jquery.sticky.js"></script>
+  <script src="static/assets/vendor/venobox/venobox.min.js"></script>
+  <script src="static/assets/vendor/waypoints/jquery.waypoints.min.js"></script>
+  <script src="static/assets/vendor/counterup/counterup.min.js"></script>
+  <script src="static/assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="static/assets/vendor/aos/aos.js"></script>
+
+
+  <!-- Template Main JS File -->
+  <script src="static/assets/js/main.js"></script>
+  <script src="static/assets/js/modal.js"></script> 
+  
+</body>
+
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <script src="/static/assets/js/echart.min.js"></script>
+  <title>Home</title>
+  <meta content="" name="descriptison">
+  <meta content="" name="keywords">
+
+  <!-- Favicons -->
+  
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,600,600i,700,700i,900" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="static/assets/vendor/icofont/icofont.min.css" rel="stylesheet">
+  <link href="static/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+  <link href="static/assets/vendor/animate.css/animate.min.css" rel="stylesheet">
+  <link href="static/assets/vendor/venobox/venobox.css" rel="stylesheet">
+  <link href="static/assets/vendor/aos/aos.css" rel="stylesheet">
+
+  <!-- Template Main CSS File -->
+  <link href="static/assets/css/style.css" rel="stylesheet">
+
+</head>
+<body>
+
+  
+
+  <!-- ======= Header ======= -->
+  <header id="header">
+    <div class="container">
+
+      <div class="logo float-left">
+        <h1 class="text-light"><a href="index.html"><span>BayesNet for Disease Prediction</span></a></h1>
+        <!-- Uncomment below if you prefer to use an image logo -->
+        <!-- <a href="index.html"><img src="static/assets/img/logo.png" alt="" class="img-fluid"></a>-->
+      </div>
+
+      
+    </div>
+  </header><!-- End Header -->
+
+ 
+    
+
+  <main id="main">
+
+    
+    
+
+    <!-- ======= Services Section ======= -->
+    <section id="services" class="services">
+      <div class="container" style="width:100%;height:600px;">
+      
+        <div class="section-title">
+          <h2>Services</h2>
+        </div>
+      
+
+        <div style="position: absolute;width:100%;height:1200px;margin-left:50px">
+        <form class="form-horizontal"  action="{{ url_for('inference') }}" method="post">
+        
+         
+          <div>
+          <label for="file-select">Choose model</label>
+          <select id="file-select" name="file-select" onchange="changeFile()">
+              <option value="">Choose model</option>
+              {% for file in files %}
+              <option value="{{ file }}">{{ file }}</option>
+              {% endfor %}
+          </select>
+
+          <label for="content-select">Choose target node</label>
+          <select id="content-select" name="content-select">
+              <option value="">Please choose</option>
+          </select>
+
+        <div id="radio-buttons"></div>
+          
+          
+          
+    
+         <input type="submit" value="inference"/>
+        </form>
+        </div>
+        
+        
+          
+          </div>
+        <div class="container" style="position: absolute;left:900px;margin-left:10px;width:800px">
+          <div id="result_echart" style="width:100%;height:500px;">
+        </div>
+      
+      </div>
+    </section><!-- End Services Section -->
+
+    
+
+  </main><!-- End #main -->
+
+  <!-- ======= Footer ======= -->
+  <footer id="footer">
+  
+    <div class="container">
+      <div class="copyright">Copyright &copy; 2020.Company name All rights reserved.<a target="_blank" href="http://sc.chinaz.com/moban/">&#x7F51;&#x9875;&#x6A21;&#x677F;</a></div>
+      <div class="credits"></div>
+    </div>
+  </footer><!-- End Footer -->
+
+  <a href="#" class="back-to-top"><i class="icofont-simple-up"></i></a>
+
+  <!-- Vendor JS Files -->
+  <script src="static/assets/vendor/jquery/jquery.min.js"></script>
+  <script src="static/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="static/assets/vendor/jquery.easing/jquery.easing.min.js"></script>
+  
+  <script src="static/assets/vendor/jquery-sticky/jquery.sticky.js"></script>
+  <script src="static/assets/vendor/venobox/venobox.min.js"></script>
+  <script src="static/assets/vendor/waypoints/jquery.waypoints.min.js"></script>
+  <script src="static/assets/vendor/counterup/counterup.min.js"></script>
+  <script src="static/assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
+  <script src="static/assets/vendor/aos/aos.js"></script>
+
+  <!-- Template Main JS File -->
+  <script src="static/assets/js/main.js"></script>
+  <script type="text/javascript">
+    var chartDom = document.getElementById('result_echart');
+    var myChart = echarts.init(chartDom);
+    var option;
+
+    option = {
+      xAxis: {
+        type: 'category',
+        data: ['True', 'False']
+      },
+      yAxis: {
+        type: 'value'
+      },
+      series: [
+        {
+          data: {{inference}},
+          type: 'bar',
+          barWidth:'40%',
+          label: {     
+            show: true,
+            position: "top",
+            color:'#D1DBFF',
+            fontSize: "16px",
+            }            
+
+        }
+      ]
+      };
+
+    option && myChart.setOption(option);
+  </script>
+ 
+<script>
+        function changeFile() {
+            var file_name = $('#file-select').val();
+            $('#content-select option').remove();
+            $.ajax({
+                url: '/get_file_data',
+                data: {file_name: file_name},
+                type: 'POST',
+                dataType: 'json',
+                success: function(response) {
+                    for (var i=0; i<response.data.length; i++) {
+                        $('#content-select').append('<option value="' + response.data[i] + '">' + response.data[i] + '</option>');
+                    }
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+            $.ajax({
+                url: '/get_radios',
+                data: {file_name: file_name},
+                type: 'POST',
+                dataType: 'json',
+                success: function(response) {
+                    $('#radio-buttons').html(response.radios);
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            })
+        }
+    </script>
+</body>
+
+</html>
